@@ -1,18 +1,17 @@
 package net.halenka.hannes.aoc19scala
 
 import scala.io.Source
-import scala.util.Try
+import scala.util.{Failure, Success, Using}
 
 object Day01 {
   def calcFuelRequirementModule(mass: Int): Int = (mass / 3) - 2
 
   def moduleMasses: Seq[Int] = {
-    val source = Source.fromResource("day01/input.txt")
-
-    try {
-      source.getLines().map(_.toInt).toSeq
-    } finally {
-      Try(source.close())
+    Using(Source.fromResource("day01/input.txt")) {
+      resource => resource.getLines().toSeq
+    } match {
+      case Success(lines) => lines.map(_.toInt)
+      case Failure(exception) => throw exception
     }
   }
 
