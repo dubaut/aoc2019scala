@@ -4,7 +4,17 @@ import scala.io.Source
 import scala.util.{Failure, Success, Using}
 
 object Day01 {
-  def calcFuelRequirementModule(mass: Int): Int = (mass / 3) - 2
+  def calcFuelRequirements(mass: Int): Int = {
+    var fuelRequirement =  (mass / 3) - 2
+
+    if (fuelRequirement > 0) {
+      fuelRequirement = fuelRequirement + calcFuelRequirements(fuelRequirement)
+    } else {
+      fuelRequirement = 0
+    }
+
+    fuelRequirement
+  }
 
   def moduleMasses: Seq[Int] = {
     Using(Source.fromResource("day01/input.txt")) {
@@ -15,11 +25,12 @@ object Day01 {
     }
   }
 
-  def answer: Day01Answer = {
-    val fuelRequirement = moduleMasses.fold(0)(_ + calcFuelRequirementModule(_))
-
-    Day01Answer(fuelRequirement)
+  def calcFuelRequirementsForModules: Int = {
+    val fuelRequirement = moduleMasses.fold(0)(_ + calcFuelRequirements(_))
+    fuelRequirement
   }
+
+  def answer: Day01Answer = Day01Answer(calcFuelRequirementsForModules)
 }
 
 case class Day01Answer(fuelRequirements: Int)
