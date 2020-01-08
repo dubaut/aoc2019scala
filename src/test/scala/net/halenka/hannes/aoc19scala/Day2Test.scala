@@ -33,43 +33,4 @@ class Day2Test extends AnyFlatSpec with TryValues with Matchers {
     val result = loadResourceAsIntSeq("day02/not_parsable_input.txt")
     result should be a Symbol("failure")
   }
-
-  "`runIntcode(Seq)`" should "return <2,0,0,0,99> for <1,0,0,0,99>" in {
-    val expected = Seq(2, 0, 0, 0, 99)
-    val actual = runIntcode(Seq(1, 0, 0, 0, 99))
-    assertResult(expected)(actual)
-  }
-
-  it should "return <2,3,0,6,99> for <2,3,0,3,99>" in {
-    val expected = Seq(2, 3, 0, 6, 99)
-    val actual = runIntcode(Seq(2, 3, 0, 3, 99))
-    assertResult(expected)(actual)
-  }
-
-  it should "return <2,4,4,5,99,9801> for <2,4,4,5,99,0>" in {
-    val expected = Seq(2, 4, 4, 5, 99, 9801)
-    val actual = runIntcode(Seq(2, 4, 4, 5, 99, 0))
-    assertResult(expected)(actual)
-  }
-
-  it should "return <30,1,1,4,2,5,6,0,99> for <1,1,1,4,99,5,6,0,99>" in {
-    val expected = Seq(30, 1, 1, 4, 2, 5, 6, 0, 99)
-    val actual = runIntcode(Seq(1, 1, 1, 4, 99, 5, 6, 0, 99))
-    assertResult(expected)(actual)
-  }
-
-  it should "return <3500,9,10,70,2,3,11,0,99,30,40,50> for <1,9,10,3,2,3,11,0,99,30,40,50>" in {
-    val expected = Seq(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50)
-    val actual = runIntcode(Seq(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50))
-    assertResult(expected)(actual)
-  }
-
-  it should "return a `IllegalArgumentException` if  `program` is <null> or empty." in {
-    assertThrows[IllegalArgumentException] {
-      runIntcode(null)
-    }
-    assertThrows[IllegalArgumentException] {
-      runIntcode(Seq())
-    }
-  }
 }
