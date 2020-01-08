@@ -6,8 +6,6 @@ import net.halenka.hannes.aoc19scala.validation._
 import scala.util.{Failure, Success, Try}
 
 object Day02 {
-  val instructionLength = 4
-
   /**
    * @throws IllegalArgumentException if `resource` is blank.
    */
