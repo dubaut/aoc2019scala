@@ -10,4 +10,10 @@ object AdventOfCode extends App {
     case Right(answer) => println(answer)
     case Left(left) => println(s"ERROR: ${left.toString}")
   }
+
+  print("Day 03: ")
+  Day03.answer match {
+    case Right(answer) => println(answer)
+    case Left(left) => println(s"ERROR: ${left.toString}")
+  }
 }
