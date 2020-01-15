@@ -1,6 +1,5 @@
-package net.halenka.hannes.aoc19scala
+package net.halenka.hannes.aoc19scala.day03
 
-import net.halenka.hannes.aoc19scala.day03.{Point, WiringInstruction}
 import net.halenka.hannes.aoc19scala.validation.NonBlankString
 import org.apache.commons.lang3.StringUtils
 import org.scalatest.OptionValues

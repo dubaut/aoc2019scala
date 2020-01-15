@@ -10,9 +10,9 @@ package object aoc19scala {
    *
    * @throws IllegalArgumentException if `resource` is blank
    */
-  def loadTextFileResource(resource: String): Try[List[String]] = {
+  def loadTextFileResource(resource: String): Try[Vector[String]] = {
     val _resource = resource.requireNonBlank("`resource` must not be blank.")
 
-    Using(Source.fromResource(_resource)) { r => r.getLines().toList }
+    Using(Source.fromResource(_resource)) { r => r.getLines().toVector }
   }
 }

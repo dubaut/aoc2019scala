@@ -1,16 +1,16 @@
-package net.halenka.hannes.aoc19scala
+package net.halenka.hannes.aoc19scala.day03
 
-import net.halenka.hannes.aoc19scala.day03._
+import net.halenka.hannes.aoc19scala.loadTextFileResource
 import net.halenka.hannes.aoc19scala.validation.{NonBlankString, SeqValidator, StringValidator}
 
 import scala.util.{Failure, Success}
 
 object Day03 {
-  def answer: Either[Any, Int] = {
+  def answer: Either[Any, Day03Result] = {
     loadTextFileResource("day03/input.txt") match {
       case Success(lines) =>
         calculateShortestDistance(lines.head, lines(1)) match {
-          case Some(distance) => Right(distance)
+          case Some(distance) => Right(Day03Result(distance, 0))
           case None => Left("The two paths appear not to intersect each other.")
         }
       case Failure(ex) => Left(ex)
@@ -94,3 +94,4 @@ object Day03 {
   }
 }
 
+case class Day03Result(part1: Int, part2: Int)

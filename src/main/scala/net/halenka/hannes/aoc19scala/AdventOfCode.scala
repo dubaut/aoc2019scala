@@ -1,5 +1,7 @@
 package net.halenka.hannes.aoc19scala
 
+import net.halenka.hannes.aoc19scala.day03.Day03
+
 object AdventOfCode extends App {
   println("*** Advent of Code 2019, done in Scala ***")
 
