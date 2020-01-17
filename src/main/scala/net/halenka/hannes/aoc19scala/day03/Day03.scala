@@ -6,18 +6,78 @@ import net.halenka.hannes.aoc19scala.validation.{NonBlankString, SeqValidator, S
 import scala.util.{Failure, Success}
 
 object Day03 {
+  private final val Origin: Point = Point(0, 0)
+
   def answer: Either[Any, Day03Result] = {
+    def calculatePart1(intersections: Vector[Point]) = {
+      if (intersections.nonEmpty) {
+        val closest = intersections.reduce((p1, p2) => Origin.closestManhattanDistance(p1, p2)._1)
+        Right(Day03Result(Origin.manhattanDistance(closest), _))
+      } else {
+        Left("The wires have no intersection.")
+      }
+    }
+
+    def calculatePart2(intersections: IndexedSeq[Point], path1: IndexedSeq[Point], path2: IndexedSeq[Point]): Int = {
+      def getStepPos(point: Point, path: IndexedSeq[Point]): Int = {
+        val pathZipped = path.zipWithIndex
+
+        pathZipped.find(_._1 == point) match {
+          case Some(step) => {
+            step._2
+          }
+          case _ => throw new RuntimeException(s"Could not find $point in $path.")
+        }
+      }
+
+      intersections.foldLeft(Int.MaxValue)((minSteps, point) => {
+        val posInPath1 = getStepPos(point, path1)
+        val posInPath2 = getStepPos(point, path2)
+
+        val totalSteps = posInPath1 + posInPath2
+
+        if (totalSteps < minSteps) totalSteps else minSteps
+      })
+    }
+
     loadTextFileResource("day03/input.txt") match {
       case Success(lines) =>
+        lines.size match {
+          case 2 =>
+            val wi = lines.map(line => getWiringInstructions(NonBlankString(line)))
+
+            val stepsPath1 = getCoordinates(wi(0))
+            val stepsPath2 = getCoordinates(wi(1))
+
+            val intersections = stepsPath1.intersect(stepsPath2).filter(_ != Origin)
+
+            val part1 = calculatePart1(intersections)
+
+            part1 match {
+              case Right(result) => {
+                val part2: Int = calculatePart2(intersections, stepsPath1, stepsPath2)
+
+                Right(result(part2))
+              }
+              case Left(left) => Left(left)
+              case _ => throw new RuntimeException("Unexpected result.")
+            }
+          case size: Int => Left(s"Invalid number of lines: $size")
+        }
+
+
+        /*
         calculateShortestDistance(lines.head, lines(1)) match {
           case Some(distance) => Right(Day03Result(distance, 0))
           case None => Left("The two paths appear not to intersect each other.")
         }
+
+         */
       case Failure(ex) => Left(ex)
     }
   }
 
-  /** Returns the <i>Manhattan Distance</i> between origin and the closes intersection between to paths.
+  /** Returns the <i>Manhattan Distance</i> between Origin and the closes intersection between to paths.
    *
    * @throws IllegalArgumentException if either `path1` or `path2` is `null`.
    */
@@ -27,12 +87,11 @@ object Day03 {
 
     val wiringInstructions = Vector(getWiringInstructions(_path1), getWiringInstructions(_path2))
     val coordinates = wiringInstructions.map(getCoordinates)
-    val intersections = coordinates.reduceLeft(_.intersect(_)).filter(_ != Point(0, 0))
+    val intersections = coordinates.reduceLeft(_.intersect(_)).filter(_ != Origin)
 
     if (intersections.isEmpty == false) {
-      val origin = Point(0, 0)
-      val closest = intersections.reduce((p1, p2) => origin.closestManhattanDistance(p1, p2)._1)
-      Some(origin.manhattanDistance(closest))
+      val closest = intersections.reduce((p1, p2) => Origin.closestManhattanDistance(p1, p2)._1)
+      Some(Origin.manhattanDistance(closest))
     } else {
       None
     }
@@ -55,7 +114,7 @@ object Day03 {
   def getCoordinates(wi: Vector[WiringInstruction]): Vector[Point] = {
     wi.requireNonEmpty("`wi` must not be empty.")
 
-    val coordinates: Vector[Point] = wi.foldLeft(Vector[Point](Point(0, 0)))((coordinates, instruction) => {
+    val coordinates: Vector[Point] = wi.foldLeft(Vector[Point](Origin))((coordinates, instruction) => {
       coordinates.appendedAll(getCoordinatesForInstruction(coordinates.last, instruction))
     })
 
