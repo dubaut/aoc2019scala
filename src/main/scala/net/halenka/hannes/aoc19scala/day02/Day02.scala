@@ -1,6 +1,7 @@
-package net.halenka.hannes.aoc19scala
+package net.halenka.hannes.aoc19scala.day02
 
 import net.halenka.hannes.aoc19scala.intcode.Intcode
+import net.halenka.hannes.aoc19scala.loadTextFileResource
 import net.halenka.hannes.aoc19scala.validation._
 
 import scala.util.{Failure, Success, Try}
@@ -9,22 +10,22 @@ object Day02 {
   /**
    * @throws IllegalArgumentException if `resource` is blank.
    */
-  def loadResourceAsIntSeq(resource: String): Try[Seq[Int]] = {
+  def loadResourceAsIntSeq(resource: String): Try[IndexedSeq[Int]] = {
     val _resource = resource.requireNonBlank("`resource` must not be blank.")
 
     loadTextFileResource(_resource) match {
       case Success(lines) => Try(
         if (lines.nonEmpty) {
-          lines.head.split(',').map(_.toInt).toSeq
+          lines.head.split(',').map(_.toInt).toIndexedSeq
         } else {
-          Nil
+          IndexedSeq()
         }
       )
       case Failure(ex) => Failure(ex)
     }
   }
 
-  def calculateAnswer(program: Seq[Int]): Either[Any, Int] = {
+  def calculateAnswer(program: IndexedSeq[Int]): Either[Any, Int] = {
     val intcode = Intcode(program)
     for (noun <- 0 to 99) {
       for (verb <- 0 to 99) {
@@ -36,10 +37,20 @@ object Day02 {
     Left("Could not determine pair of inputs.")
   }
 
-  def answer: Either[Any, Int] = {
+  def answer: Either[Any, Day02Result] = {
     loadResourceAsIntSeq("day02/input.txt") match {
-      case Success(program) => calculateAnswer(program)
+      case Success(program) =>
+        val part1 = Intcode(program).run(12, 2).head
+        val result = Day02Result(part1, _)
+
+        calculateAnswer(program) match {
+          case Right(part2) => Right(result(part2))
+          case Left(left) =>Left(left)
+        }
+
       case Failure(ex) => Left(ex)
     }
   }
 }
+
+case class Day02Result(part1: Int, part2: Int)

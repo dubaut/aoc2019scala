@@ -1,6 +1,6 @@
-package net.halenka.hannes.aoc19scala
+package net.halenka.hannes.aoc19scala.day02
 
-import net.halenka.hannes.aoc19scala.Day02._
+import net.halenka.hannes.aoc19scala.day02.Day02._
 import org.scalatest.TryValues
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
