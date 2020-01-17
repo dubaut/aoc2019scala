@@ -1,8 +1,7 @@
+package net.halenka.hannes.aoc19scala.day01
+
+import net.halenka.hannes.aoc19scala.day01.Day01._
 import org.scalatest.flatspec.AnyFlatSpec
-
-package net.halenka.hannes.aoc19scala {
-
-  import net.halenka.hannes.aoc19scala.Day01._
 
   class Day01Test extends AnyFlatSpec {
     "A module of mass 12" should "require 2 fuel." in {
@@ -24,9 +23,4 @@ package net.halenka.hannes.aoc19scala {
     "All modules" should "require 4907345 fuel." in {
       assert(calcFuelRequirementsForModules == 4907345)
     }
-
-    "The answer for Day 1 " should "be 4907345." in {
-      assert(answer == Day01Answer(4907345))
-    }
   }
-}

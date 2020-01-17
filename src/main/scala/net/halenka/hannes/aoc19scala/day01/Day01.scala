@@ -1,4 +1,4 @@
-package net.halenka.hannes.aoc19scala
+package net.halenka.hannes.aoc19scala.day01
 
 import scala.io.Source
 import scala.util.{Failure, Success, Using}
@@ -16,11 +16,11 @@ object Day01 {
     fuelRequirement
   }
 
-  def moduleMasses: Seq[Int] = {
+  def moduleMasses: IndexedSeq[Int] = {
     Using(Source.fromResource("day01/input.txt")) {
       resource => resource.getLines().toSeq
     } match {
-      case Success(lines) => lines.map(_.toInt)
+      case Success(lines) => lines.map(_.toInt).toIndexedSeq
       case Failure(exception) => throw exception
     }
   }
@@ -30,7 +30,12 @@ object Day01 {
     fuelRequirement
   }
 
-  def answer: Day01Answer = Day01Answer(calcFuelRequirementsForModules)
+  def answer: Either[Any, Day01Result] = {
+    val part1 = moduleMasses.fold(0)((a, b) => a + (b / 3) - 2)
+    val part2 = calcFuelRequirementsForModules
+
+    Right(Day01Result(part1, part2))
+  }
 }
 
-case class Day01Answer(fuelRequirements: Int)
+case class Day01Result(part1: Int, part2: Int)
