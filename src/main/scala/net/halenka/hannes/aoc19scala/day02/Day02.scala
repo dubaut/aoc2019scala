@@ -27,6 +27,14 @@ object Day02 {
 
   def calculateAnswer(program: IndexedSeq[Int]): Either[Any, Int] = {
     val intcode = Intcode(program)
+
+    (0 to 99)
+      .foreach(noun =>
+        (0 to 99)
+          .withFilter(verb => intcode.run(noun, verb).head == 19690720)
+          .foreach(_ => {})
+      )
+
     for (noun <- 0 to 99) {
       for (verb <- 0 to 99) {
         if (intcode.run(noun, verb).head == 19690720)

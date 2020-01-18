@@ -64,15 +64,6 @@ object Day03 {
             }
           case size: Int => Left(s"Invalid number of lines: $size")
         }
-
-
-        /*
-        calculateShortestDistance(lines.head, lines(1)) match {
-          case Some(distance) => Right(Day03Result(distance, 0))
-          case None => Left("The two paths appear not to intersect each other.")
-        }
-
-         */
       case Failure(ex) => Left(ex)
     }
   }
