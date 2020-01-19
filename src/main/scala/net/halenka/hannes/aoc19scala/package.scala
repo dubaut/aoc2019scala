@@ -15,4 +15,8 @@ package object aoc19scala {
 
     Using(Source.fromResource(_resource)) { r => r.getLines().toVector }
   }
+
+  implicit class IntOps(value: Int) {
+    def toIndexedSeq: IndexedSeq[Int] = String.valueOf(value).map(_.toInt)
+  }
 }

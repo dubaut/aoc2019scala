@@ -7,7 +7,11 @@ import org.scalatest.matchers.should.Matchers
 
 class Day04Test extends AnyFlatSpec with EitherValues with Matchers{
   "`answer`" should "should contain `Day04Result(1246)`." in {
-    assertResult(true)(answer.contains(Day04Result(1246)))
+    val expected = Day04Result(1246, 814)
+    val actual = answer.toOption.get
+
+    answer shouldBe a[Right[_, _]]
+    assertResult(expected)(actual)
   }
 
   "`calculatePart1(Range)`" should "return a sequence of 1246 elements for the range `234208 to 765869`." in {
@@ -44,5 +48,18 @@ class Day04Test extends AnyFlatSpec with EitherValues with Matchers{
 
   it should "return `false` for numbers whose digits decrease." in {
     assertResult(false)(digitsNeverDecrease(321))
+  }
+
+  "`hasTwoEqualAdjacentDigits(Int)`" should "return `true` for numbers with at least one group of exactly two equal adjacent digits." in {
+    assertResult(true)(hasTwoEqualAdjacentDigits(112233))
+    assertResult(true)(hasTwoEqualAdjacentDigits(111122))
+  }
+
+  it should "return `false` for numbers without equal adjacent digits." in {
+    assertResult(false)(hasTwoEqualAdjacentDigits(123456))
+  }
+
+  it should "return `false` for numbers with groups of more than two equal adjacent digits but none with exactly two." in {
+    assertResult(false)(hasTwoEqualAdjacentDigits(123444))
   }
  }
