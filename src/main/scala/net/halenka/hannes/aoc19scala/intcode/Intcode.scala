@@ -79,18 +79,37 @@ object Intcode {
     }
   }
 
+  type ApplyInstructionResult = (IndexedSeq[Int], Option[Int])
+
   /** Applies an instruction to a program.
    *
    * @throws IllegalArgumentException if `instruction` is `null`
    * @throws IllegalArgumentException if `program` is either `null` or empty
    * @return the modified program and the optional output
    */
-  def applyInstruction(instruction: Instruction, program: IndexedSeq[Int]): (IndexedSeq[Int], Option[Int]) = {
+  def applyInstruction(instruction: Instruction, program: IndexedSeq[Int]): ApplyInstructionResult = {
     require(instruction != null, "`instruction` must not be `null`.")
     program.requireNonEmpty("`program` must not be `null` or empty.")
 
-    ???
+    def addOrMultiply(instruction: AddOrMultiply, program: IndexedSeq[Int], f: (Int, Int) => Int): IndexedSeq[Int] = {
+      require(instruction != null)
+      require(program != null && program.nonEmpty)
+      require(f != null)
+
+      val result = f(program(instruction.readAddr1), program(instruction.readAddr2))
+
+      program.updated(instruction.storeAddr, result)
+    }
+
+    instruction match {
+      case instruction: AddOrMultiply =>
+        val result = addOrMultiply(instruction, program, (a: Int, b: Int) => a + b)
+        (result, None)
+      case _: Terminate => (program, None)
+      case _ => throw new UnsupportedInstructionException(instruction)
+    }
   }
+
 
   private def processOpcode(memory: Seq[Int], read: (Int, Int), store: Int, f: (Int, Int) => Int): Seq[Int] = {
     val result = f(memory(read._1), memory(read._2))
@@ -109,3 +128,5 @@ case class UnexpectedEndOfInstructionError() extends RuntimeError
 
 @deprecated
 class UnexpectedEndOfInstructionException extends RuntimeException
+
+class UnsupportedInstructionException(instruction: Instruction) extends RuntimeException(s"The instruction type '${instruction}' is not supported.")

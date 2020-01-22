@@ -1,13 +1,13 @@
 package net.halenka.hannes.aoc19scala.intcode
 
 import net.halenka.hannes.aoc19scala.intcode.Intcode._
-import org.scalatest.TryValues
+import org.scalatest.{OptionValues, TryValues}
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
 
-class IntcodeTest extends AnyFlatSpec with Matchers with TryValues {
+class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionValues {
   "`Intcode(Seq)`" should "return a new `Intcode` instance." in {
-    Intcode(Seq(99)) shouldBe a[Intcode]
+    Intcode(Seq(99)) mustBe a[Intcode]
   }
 
   it should "produce an `IllegalArgumentException` if `program` is either <null> or an empty `Seq`." in {
@@ -47,23 +47,23 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues {
   }
 
   "`loadInstruction(IndexedSeq[Int], Int`)" must "return a `Right` containing an `Add` if the opcode of the instruction is '1." in {
-    loadInstruction(IndexedSeq(1, 2, 5, 0), 0).getOrElse(null) shouldBe a[Add]
+    loadInstruction(IndexedSeq(1, 2, 5, 0), 0).getOrElse(null) mustBe a[Add]
   }
 
   it must "return a `Multiply` if the opcode of the instruction is '2'." in {
-    loadInstruction(IndexedSeq(1, 0, 0, 0, 2, 1, 3, 0), 4).getOrElse(null) shouldBe a[Multiply]
+    loadInstruction(IndexedSeq(1, 0, 0, 0, 2, 1, 3, 0), 4).getOrElse(null) mustBe a[Multiply]
   }
 
   it must "return a `Terminate` if the opcode of the instruction is '99'." in {
-    loadInstruction(IndexedSeq(1, 0, 0, 0, 99), 4).getOrElse(null) shouldBe a[Terminate]
+    loadInstruction(IndexedSeq(1, 0, 0, 0, 99), 4).getOrElse(null) mustBe a[Terminate]
   }
 
   it must "produce an `InvalidOpcodeError` if the opcode of the instruction is unknown." in {
-    loadInstruction(IndexedSeq(-1), 0).swap.getOrElse(null) shouldBe a[InvalidOpcodeError]
+    loadInstruction(IndexedSeq(-1), 0).swap.getOrElse(null) mustBe a[InvalidOpcodeError]
   }
 
   it must "produce an `UnexpectedEndOfInstructionError` if the instruction does not have a sufficient number of parameter." in {
-    loadInstruction(IndexedSeq(1, 0, 0), 0).swap.getOrElse(null) shouldBe a[UnexpectedEndOfInstructionError]
+    loadInstruction(IndexedSeq(1, 0, 0), 0).swap.getOrElse(null) mustBe a[UnexpectedEndOfInstructionError]
   }
 
   it must "produce an `IllegalArgumentException` if `program` is `null`." in {
@@ -96,8 +96,29 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues {
     }
   }
 
-  "`applyInstruction(Instruction, IndexedSeq[Int])`" must "" in {
-    fail("Test not yet implemented.")
+  "`applyInstruction(Instruction, IndexedSeq[Int])`" must "return the effected program and its output." in {
+    val program = IndexedSeq(1, 1, 2, 0, 2, 2, 4, 8, 99)
+
+    applyInstruction(Add(1, 2, 0), program) match {
+      case (actualProgram, actualOutput) =>
+        val expectedProgram = IndexedSeq(3, 1, 2, 0, 2, 2, 4, 8, 99)
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
+
+    applyInstruction(Multiply(2, 4, 8), program) match {
+      case (actualProgram, actualOutput) =>
+        val expectedProgram = IndexedSeq(1, 1, 2, 0, 2, 2, 4, 8, 4)
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
+
+    applyInstruction(Terminate(), program) match {
+      case (actualProgram, actualOutput) =>
+        val expectedProgram = program
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
   }
 
   it must "produce an `IllegalArgumentException` if `instruction` is `null`." in {
