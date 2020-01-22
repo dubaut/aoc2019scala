@@ -1,19 +1,20 @@
 package net.halenka.hannes.aoc19scala.intcode
 
 import net.halenka.hannes.aoc19scala.intcode.Intcode._
-import org.scalatest.{OptionValues, TryValues}
+import net.halenka.hannes.aoc19scala.intcode.Intcode.Program
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{OptionValues, TryValues}
 
 class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionValues {
   "`Intcode(Seq)`" should "return a new `Intcode` instance." in {
-    Intcode(Seq(99)) mustBe a[Intcode]
+    Intcode(IndexedSeq(99)) mustBe a[Intcode]
   }
 
   it should "produce an `IllegalArgumentException` if `program` is either <null> or an empty `Seq`." in {
     assertThrows[IllegalArgumentException](Intcode(null))
 
-    assertThrows[IllegalArgumentException](Intcode(Nil))
+    assertThrows[IllegalArgumentException](Intcode(IndexedSeq()))
   }
 
   "`processInstruction(Int, Seq[Int])`" should "return the modified memory after processing." in {
@@ -134,6 +135,20 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
 
     assertThrows[IllegalArgumentException] {
       applyInstruction(Terminate(), IndexedSeq[Int]())
+    }
+  }
+
+  "`run(IndexedSeq[Int])`" must "" in {
+    fail("Test not yet implemented.")
+  }
+
+  it must "produce an `IllegalArgumentException` if `program` is `null` or empty." in {
+    assertThrows[IllegalArgumentException] {
+      Intcode.run(null)
+    }
+
+    assertThrows[IllegalArgumentException] {
+      Intcode.run(IndexedSeq())
     }
   }
 }

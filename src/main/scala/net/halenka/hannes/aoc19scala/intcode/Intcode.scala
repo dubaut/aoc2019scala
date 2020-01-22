@@ -16,12 +16,14 @@ class Intcode private(private val program: NonEmptySeq[Int]) {
 }
 
 object Intcode {
+  type Program = IndexedSeq[Int]
+
   /** Creates a new `Intcode` instance.
    *
    * @param program The program to be executed.
    * @throws IllegalArgumentException when `program` is either <null> or an empty `Seq`.
    */
-  def apply(program: Seq[Int]): Intcode = new Intcode(program.requireNonEmpty("`program` must not be empty."))
+  def apply(program: Program): Intcode = new Intcode(program.requireNonEmpty("`program` must not be empty."))
 
   /** Processes the instruction at the specified address and returns the modified memory.
    *
@@ -48,12 +50,23 @@ object Intcode {
     }
   }
 
+  /** Processes all instructions of a program.
+   *
+   * @throws IllegalArgumentException if `program` is `null` or empty
+   * @return a tuple containing the memory (`_1`) and the output (`_2`) after running the program.
+   */
+  def run(program: Program): (IndexedSeq[Int], IndexedSeq[Int]) = {
+    program.requireNonEmpty("`program` must not be `null` or empty.")
+
+    ???
+  }
+
   /** Loads the instruction from the program at the specified address.
    *
    * @throws IllegalArgumentException if `program` is either `null` or empty
    * @throws IllegalArgumentException if `address` is either < 0 or >= program.size
    */
-  def loadInstruction(program: IndexedSeq[Int], address: Int): Result[Instruction] = {
+  def loadInstruction(program: Program, address: Int): Result[Instruction] = {
     program.requireNonEmpty("`program` must not be empty.")
     require(address >= 0, "`address` must not be less than '0.")
     require(address < program.size, s"'$address' is not a valid address for the specified program.")
@@ -79,7 +92,7 @@ object Intcode {
     }
   }
 
-  type ApplyInstructionResult = (IndexedSeq[Int], Option[Int])
+  type ApplyInstructionResult = (Program, Option[Int])
 
   /** Applies an instruction to a program.
    *
@@ -87,7 +100,7 @@ object Intcode {
    * @throws IllegalArgumentException if `program` is either `null` or empty
    * @return the modified program and the optional output
    */
-  def applyInstruction(instruction: Instruction, program: IndexedSeq[Int]): ApplyInstructionResult = {
+  def applyInstruction(instruction: Instruction, program: Program): ApplyInstructionResult = {
     require(instruction != null, "`instruction` must not be `null`.")
     program.requireNonEmpty("`program` must not be `null` or empty.")
 
