@@ -2,6 +2,7 @@ package net.halenka.hannes.aoc19scala.intcode
 
 import net.halenka.hannes.aoc19scala.intcode.Intcode._
 import net.halenka.hannes.aoc19scala.validation.{NonEmptySeq, SeqValidator}
+import net.halenka.hannes.aoc19scala.{Result, RuntimeError}
 
 class Intcode private(private val program: NonEmptySeq[Int]) {
   assert(program != null)
@@ -47,10 +48,64 @@ object Intcode {
     }
   }
 
+  /** Loads the instruction from the program at the specified address.
+   *
+   * @throws IllegalArgumentException if `program` is either `null` or empty
+   * @throws IllegalArgumentException if `address` is either < 0 or >= program.size
+   */
+  def loadInstruction(program: IndexedSeq[Int], address: Int): Result[Instruction] = {
+    program.requireNonEmpty("`program` must not be empty.")
+    require(address >= 0, "`address` must not be less than '0.")
+    require(address < program.size, s"'$address' is not a valid address for the specified program.")
+
+    val instruction = program.drop(address)
+
+    instruction.head match {
+      case 1 =>
+        if (instruction.length >= 4) {
+          Right(Add(instruction(1), instruction(2), instruction(3)))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
+      case 2 =>
+        if (instruction.length >= 4) {
+          Right(Multiply(instruction(1), instruction(2), instruction(3)))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
+      case 99 =>
+        Right(Terminate())
+      case opcode => Left(InvalidOpcodeError(opcode))
+    }
+  }
+
+  /** Applies an instruction to a program.
+   *
+   * @throws IllegalArgumentException if `instruction` is `null`
+   * @throws IllegalArgumentException if `program` is either `null` or empty
+   * @return the modified program and the optional output
+   */
+  def applyInstruction(instruction: Instruction, program: IndexedSeq[Int]): (IndexedSeq[Int], Option[Int]) = {
+    require(instruction != null, "`instruction` must not be `null`.")
+    program.requireNonEmpty("`program` must not be `null` or empty.")
+
+    ???
+  }
+
   private def processOpcode(memory: Seq[Int], read: (Int, Int), store: Int, f: (Int, Int) => Int): Seq[Int] = {
     val result = f(memory(read._1), memory(read._2))
     memory.updated(store, result)
   }
 }
 
+/** Indicates that a opcode is unknown or unsupported. */
+case class InvalidOpcodeError(opcode: Int) extends RuntimeError(s"Invalid opcode: '$opcode'")
+
+@deprecated
 class InvalidOpcodeException(opcode: Int) extends RuntimeException(s"Invalid opcode: '${opcode}'")
+
+/** Indicates that an instruction does not have a sufficient number of parameter. */
+case class UnexpectedEndOfInstructionError() extends RuntimeError
+
+@deprecated
+class UnexpectedEndOfInstructionException extends RuntimeException
