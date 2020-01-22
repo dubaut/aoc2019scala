@@ -53,10 +53,12 @@ object Intcode {
   /** Processes all instructions of a program.
    *
    * @throws IllegalArgumentException if `program` is `null` or empty
+   * @throws IllegalArgumentException if `address` is less then '0'
    * @return a tuple containing the memory (`_1`) and the output (`_2`) after running the program.
    */
-  def run(program: Program): (IndexedSeq[Int], IndexedSeq[Int]) = {
+  def run(program: Program, address: Int = 0): (IndexedSeq[Int], IndexedSeq[Int]) = {
     program.requireNonEmpty("`program` must not be `null` or empty.")
+    require(address >= 0, "`address` must not be less than '0'.")
 
     ???
   }

@@ -1,7 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
 import net.halenka.hannes.aoc19scala.intcode.Intcode._
-import net.halenka.hannes.aoc19scala.intcode.Intcode.Program
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
@@ -149,6 +148,12 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
 
     assertThrows[IllegalArgumentException] {
       Intcode.run(IndexedSeq())
+    }
+  }
+
+  it must "produce an `IllegalArgumentException` if `address` is less than '0'." in {
+    assertThrows[IllegalArgumentException] {
+      Intcode.run(IndexedSeq(99), -1)
     }
   }
 }
