@@ -137,8 +137,12 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
     }
   }
 
-  "`run(IndexedSeq[Int])`" must "" in {
-    fail("Test not yet implemented.")
+  "`run(IndexedSeq[Int])`" must "return the modified program and the output after processing all instructions." in {
+    assertResult((IndexedSeq(2, 0, 0, 0, 99), IndexedSeq[Int]()))(Intcode.run(IndexedSeq(1, 0, 0, 0, 99)))
+    assertResult((IndexedSeq(2, 3, 0, 6, 99), IndexedSeq[Int]()))(Intcode.run(IndexedSeq(2, 3, 0, 3, 99)))
+    assertResult((IndexedSeq(2, 4, 4, 5, 99, 9801), IndexedSeq[Int]()))(Intcode.run(IndexedSeq(2, 4, 4, 5, 99, 0)))
+    assertResult((IndexedSeq(30, 1, 1, 4, 2, 5, 6, 0, 99), IndexedSeq[Int]()))(Intcode.run(IndexedSeq(1, 1, 1, 4, 99, 5, 6, 0, 99)))
+    assertResult((IndexedSeq(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50), IndexedSeq[Int]()))(Intcode.run(IndexedSeq(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50)))
   }
 
   it must "produce an `IllegalArgumentException` if `program` is `null` or empty." in {

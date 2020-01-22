@@ -56,11 +56,21 @@ object Intcode {
    * @throws IllegalArgumentException if `address` is less then '0'
    * @return a tuple containing the memory (`_1`) and the output (`_2`) after running the program.
    */
+  @scala.annotation.tailrec
   def run(program: Program, address: Int = 0): (IndexedSeq[Int], IndexedSeq[Int]) = {
     program.requireNonEmpty("`program` must not be `null` or empty.")
     require(address >= 0, "`address` must not be less than '0'.")
 
-    ???
+    loadInstruction(program, address) match {
+      case Right(instruction) =>
+        instruction match {
+          case Terminate() => (program, IndexedSeq[Int]())
+          case instruction => applyInstruction(instruction, program) match {
+            case (program, output) => run(program, address + instruction.length)
+          }
+        }
+      case Left(error) => throw new RuntimeException(s"Error: ${error.getClass.getName}")
+    }
   }
 
   /** Loads the instruction from the program at the specified address.
