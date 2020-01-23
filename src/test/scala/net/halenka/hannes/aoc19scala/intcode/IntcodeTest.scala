@@ -16,36 +16,6 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
     assertThrows[IllegalArgumentException](Intcode(IndexedSeq()))
   }
 
-  "`processInstruction(Int, Seq[Int])`" should "return the modified memory after processing." in {
-    assertResult(Seq(2, 0, 0, 0, 99))(processInstruction(Seq(1, 0, 0, 0, 99), 0))
-    assertResult(Seq(2, 3, 0, 6, 99))(processInstruction(Seq(2, 3, 0, 3, 99), 0))
-    assertResult(Seq(2, 4, 4, 5, 99, 9801))(processInstruction(Seq(2, 4, 4, 5, 99, 0), 0))
-    assertResult(Seq(30, 1, 1, 4, 2, 5, 6, 0, 99))(processInstruction(Seq(1, 1, 1, 4, 99, 5, 6, 0, 99), 0))
-    assertResult(Seq(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50))(processInstruction(Seq(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50), 0))
-  }
-
-  it should "produce an `IllegalArgumentException` if `memory` is `null` or an empty `Seq`." in {
-    assertThrows[IllegalArgumentException] {
-      processInstruction(null, 0)
-    }
-
-    assertThrows[IllegalArgumentException] {
-      processInstruction(Nil, 0)
-    }
-  }
-
-  it should "produce an `IllegalArgumentException` if `address` is negative or greater than `memory.size - 1`." in {
-    val seq = Seq(0, 1, 2, 3)
-
-    assertThrows[IllegalArgumentException] {
-      processInstruction(seq, -1)
-    }
-
-    assertThrows[IllegalArgumentException] {
-      Intcode.processInstruction(seq, seq.size)
-    }
-  }
-
   "`loadInstruction(IndexedSeq[Int], Int`)" must "return a `Right` containing an `Add` if the opcode of the instruction is '1." in {
     loadInstruction(IndexedSeq(1, 2, 5, 0), 0).getOrElse(null) mustBe a[Add]
   }

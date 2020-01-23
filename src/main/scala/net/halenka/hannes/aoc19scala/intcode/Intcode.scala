@@ -1,6 +1,5 @@
 package net.halenka.hannes.aoc19scala.intcode
 
-import net.halenka.hannes.aoc19scala.intcode.Intcode._
 import net.halenka.hannes.aoc19scala.validation.{NonEmptySeq, SeqValidator}
 import net.halenka.hannes.aoc19scala.{Result, RuntimeError}
 
@@ -11,7 +10,9 @@ class Intcode private(private val program: NonEmptySeq[Int]) {
   def run(noun: Int, verb: Int): Seq[Int] = {
     val memory: Seq[Int] = program.updated(1, noun).updated(2, verb)
 
-    processInstruction(memory, 0)
+    Intcode.run(memory.toIndexedSeq) match {
+      case (program, _) => program
+    }
   }
 }
 
@@ -24,31 +25,6 @@ object Intcode {
    * @throws IllegalArgumentException when `program` is either <null> or an empty `Seq`.
    */
   def apply(program: Program): Intcode = new Intcode(program.requireNonEmpty("`program` must not be empty."))
-
-  /** Processes the instruction at the specified address and returns the modified memory.
-   *
-   * @throws IllegalArgumentException if `address` is not within the interval between `0` and `memory.size - 1`
-   * @throws IllegalArgumentException if `memory` is either `null` or an empty `Seq`
-   */
-  @scala.annotation.tailrec
-  def processInstruction(memory: Seq[Int], address: Int): Seq[Int] = {
-    memory.requireNonEmpty("<memory> must not be empty.")
-    if (address < 0 || address > memory.size - 1) throw new IllegalArgumentException(s"The address must not be less then `0` or greater than `${memory.size - 1}`")
-
-    val instruction = memory.drop(address)
-    val opcode = instruction.head
-
-    opcode match {
-      case 1 =>
-        val processed = processOpcode(memory, (instruction(1), instruction(2)), instruction(3), (a: Int, b: Int) => a + b)
-        processInstruction(processed, address + 4)
-      case 2 =>
-        val processed = processOpcode(memory, (instruction(1), instruction(2)), instruction(3), (a: Int, b: Int) => a * b)
-        processInstruction(processed, address + 4)
-      case 99 => memory
-      case _ => throw new InvalidOpcodeException(opcode)
-    }
-  }
 
   /** Processes all instructions of a program.
    *
@@ -136,12 +112,6 @@ object Intcode {
       case _: Terminate => (program, None)
       case _ => throw new UnsupportedInstructionException(instruction)
     }
-  }
-
-
-  private def processOpcode(memory: Seq[Int], read: (Int, Int), store: Int, f: (Int, Int) => Int): Seq[Int] = {
-    val result = f(memory(read._1), memory(read._2))
-    memory.updated(store, result)
   }
 }
 
