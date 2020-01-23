@@ -127,8 +127,11 @@ object Intcode {
     }
 
     instruction match {
-      case instruction: AddOrMultiply =>
+      case instruction: Add =>
         val result = addOrMultiply(instruction, program, (a: Int, b: Int) => a + b)
+        (result, None)
+      case instruction: Multiply =>
+        val result = addOrMultiply(instruction, program, (a: Int, b: Int) => a * b)
         (result, None)
       case _: Terminate => (program, None)
       case _ => throw new UnsupportedInstructionException(instruction)
