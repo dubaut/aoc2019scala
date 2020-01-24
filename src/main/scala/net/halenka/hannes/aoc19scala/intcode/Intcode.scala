@@ -74,6 +74,12 @@ object Intcode {
         } else {
           Left(UnexpectedEndOfInstructionError())
         }
+      case 3 =>
+        if (instruction.length >= 2) {
+          Right(StoreInput(instruction(1)))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
       case 99 =>
         Right(Terminate())
       case opcode => Left(InvalidOpcodeError(opcode))
@@ -112,6 +118,23 @@ object Intcode {
       case _: Terminate => (program, None)
       case _ => throw new UnsupportedInstructionException(instruction)
     }
+  }
+
+  /** Applies a instruction to a program, using the provided input.
+   *
+   * @return the modified program and the optional output
+   * @throws IllegalArgumentException if `instruction` is `null`
+   * @throws IllegalArgumentException if `program` is either `null` or empty
+   */
+  def applyInstructionWithInput(instruction: InstructionWithInput,
+                                program: Program,
+                                input: Int): ApplyInstructionResult = {
+    require(instruction != null, "`instruction` must not be ´null´.")
+    program.requireNonEmpty("´program´ must not be `null` or empty.")
+
+
+
+    ???
   }
 }
 
