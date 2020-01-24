@@ -42,5 +42,8 @@ package object aoc19scala {
 
   abstract class RuntimeError(private val _message: String = null) {
     def message: Option[String] = Option(_message)
+
+    override def toString: String = s"${this.getClass.getSimpleName}(<${message.orNull}>)"
   }
+
 }
