@@ -41,6 +41,9 @@ object Intcode {
       case Right(instruction) =>
         instruction match {
           case Terminate() => (program, IndexedSeq[Int]())
+          case instruction: InstructionWithInput => applyInstructionWithInput(instruction, program, 1) match {
+            case (program, output) => run(program, address + instruction.length)
+          }
           case instruction => applyInstruction(instruction, program) match {
             case (program, output) => run(program, address + instruction.length)
           }

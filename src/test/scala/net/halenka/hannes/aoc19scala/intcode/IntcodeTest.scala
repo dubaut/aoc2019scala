@@ -138,7 +138,7 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
   }
 
   "`run(..)`" must "return the modified program and the output after processing all instructions." in {
-    val emptyOutput = IndexedSeq[Int]()
+    val emptyOutput = Nil.toIndexedSeq
 
     assertResult((IndexedSeq(2, 0, 0, 0, 99), emptyOutput))(Intcode.run(IndexedSeq(1, 0, 0, 0, 99)))
     assertResult((IndexedSeq(2, 3, 0, 6, 99), emptyOutput))(Intcode.run(IndexedSeq(2, 3, 0, 3, 99)))
@@ -146,6 +146,7 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
     assertResult((IndexedSeq(30, 1, 1, 4, 2, 5, 6, 0, 99), emptyOutput))(Intcode.run(IndexedSeq(1, 1, 1, 4, 99, 5, 6, 0, 99)))
     assertResult((IndexedSeq(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50), emptyOutput))(Intcode.run(IndexedSeq(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50)))
 
+    assertResult((IndexedSeq(1, 1, 3, 1, 99), emptyOutput))(Intcode.run(IndexedSeq(3, 0, 3, 1, 99)))
     //assertResult(IndexedSeq(1002, 4, 3, 4, 99), emptyOutput)(Intcode.run(IndexedSeq(1002, 4, 3, 4, 33)))
   }
 
