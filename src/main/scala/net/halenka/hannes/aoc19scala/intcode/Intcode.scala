@@ -132,9 +132,12 @@ object Intcode {
     require(instruction != null, "`instruction` must not be ´null´.")
     program.requireNonEmpty("´program´ must not be `null` or empty.")
 
-
-
-    ???
+    instruction match {
+      case StoreInput(storeAddr) =>
+        val result = program.updated(storeAddr, input)
+        (result, None)
+      case _ => throw new UnsupportedInstructionException(instruction)
+    }
   }
 }
 

@@ -112,13 +112,11 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
   }
 
   "`applyInstructionWithInput(..)`" must "return the effected program and its output." in {
-    fail("Test not yet implemented.")
-
     val instruction = StoreInput(0)
     val program = IndexedSeq(3, 0, 99)
     val input = 1
 
-    val expected = IndexedSeq(1, 0, 99)
+    val expected = (IndexedSeq(1, 0, 99), None)
     val actual = applyInstructionWithInput(instruction, program, input)
     assertResult(expected)(actual)
   }
@@ -148,7 +146,7 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
     assertResult((IndexedSeq(30, 1, 1, 4, 2, 5, 6, 0, 99), emptyOutput))(Intcode.run(IndexedSeq(1, 1, 1, 4, 99, 5, 6, 0, 99)))
     assertResult((IndexedSeq(3500, 9, 10, 70, 2, 3, 11, 0, 99, 30, 40, 50), emptyOutput))(Intcode.run(IndexedSeq(1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50)))
 
-    // assertResult(IndexedSeq(1002, 4, 3, 4, 99), emptyOutput)(Intcode.run(IndexedSeq(1002, 4, 3, 4, 33)))
+    //assertResult(IndexedSeq(1002, 4, 3, 4, 99), emptyOutput)(Intcode.run(IndexedSeq(1002, 4, 3, 4, 33)))
   }
 
   it must "produce an `IllegalArgumentException` if `program` is `null` or empty." in {
