@@ -4,6 +4,7 @@ import net.halenka.hannes.aoc19scala.day01.Day01
 import net.halenka.hannes.aoc19scala.day02.Day02
 import net.halenka.hannes.aoc19scala.day03.Day03
 import net.halenka.hannes.aoc19scala.day04.Day04
+import net.halenka.hannes.aoc19scala.day05.Day05
 
 object AdventOfCode extends App {
   println("*** Advent of Code 2019, done in Scala ***")
@@ -28,6 +29,12 @@ object AdventOfCode extends App {
 
   print("Day 04: ")
   Day04.answer match {
+    case Right(answer) => println(answer)
+    case Left(left) => println(s"ERROR: ${left.toString}")
+  }
+
+  print("Day 05:")
+  Day05.answer match {
     case Right(answer) => println(answer)
     case Left(left) => println(s"ERROR: ${left.toString}")
   }

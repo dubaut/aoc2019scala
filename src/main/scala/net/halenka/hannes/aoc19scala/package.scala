@@ -3,7 +3,7 @@ package net.halenka.hannes
 import net.halenka.hannes.aoc19scala.validation._
 
 import scala.io.Source
-import scala.util.{Try, Using}
+import scala.util.{Failure, Success, Try, Using}
 
 package object aoc19scala {
   type Result[+B] = Either[RuntimeError, B]
@@ -16,6 +16,24 @@ package object aoc19scala {
     val _resource = resource.requireNonBlank("`resource` must not be blank.")
 
     Using(Source.fromResource(_resource)) { r => r.getLines().toVector }
+  }
+
+  /**
+   * @throws IllegalArgumentException if `resource` is blank.
+   */
+  def loadResourceAsIntSeq(resource: String): Try[IndexedSeq[Int]] = {
+    val _resource = resource.requireNonBlank("`resource` must not be blank.")
+
+    loadTextFileResource(_resource) match {
+      case Success(lines) => Try(
+        if (lines.nonEmpty) {
+          lines.head.split(',').map(_.toInt).toIndexedSeq
+        } else {
+          IndexedSeq()
+        }
+      )
+      case Failure(ex) => Failure(ex)
+    }
   }
 
   implicit class IntOps(value: Int) {

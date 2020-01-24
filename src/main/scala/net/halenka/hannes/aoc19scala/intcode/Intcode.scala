@@ -45,7 +45,7 @@ object Intcode {
             case (program, output) => run(program, address + instruction.length)
           }
         }
-      case Left(error) => throw new RuntimeException(s"Error: ${error.getClass.getName}")
+      case Left(error) => throw new RuntimeException(s"Error: ${error.getClass.getSimpleName}")
     }
   }
 

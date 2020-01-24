@@ -1,30 +1,11 @@
 package net.halenka.hannes.aoc19scala.day02
 
 import net.halenka.hannes.aoc19scala.intcode.Intcode
-import net.halenka.hannes.aoc19scala.loadTextFileResource
-import net.halenka.hannes.aoc19scala.validation._
+import net.halenka.hannes.aoc19scala._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 object Day02 {
-  /**
-   * @throws IllegalArgumentException if `resource` is blank.
-   */
-  def loadResourceAsIntSeq(resource: String): Try[IndexedSeq[Int]] = {
-    val _resource = resource.requireNonBlank("`resource` must not be blank.")
-
-    loadTextFileResource(_resource) match {
-      case Success(lines) => Try(
-        if (lines.nonEmpty) {
-          lines.head.split(',').map(_.toInt).toIndexedSeq
-        } else {
-          IndexedSeq()
-        }
-      )
-      case Failure(ex) => Failure(ex)
-    }
-  }
-
   def calculateAnswer(program: IndexedSeq[Int]): Either[Any, Int] = {
     val intcode = Intcode(program)
 
@@ -53,7 +34,7 @@ object Day02 {
 
         calculateAnswer(program) match {
           case Right(part2) => Right(result(part2))
-          case Left(left) =>Left(left)
+          case Left(left) => Left(left)
         }
 
       case Failure(ex) => Left(ex)
