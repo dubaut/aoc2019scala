@@ -1,5 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
+import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate}
 import net.halenka.hannes.aoc19scala.intcode.Intcode._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers

@@ -1,5 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
+import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, AddOrMultiply, InstructionWithInput, Multiply, StoreInput, Terminate}
 import net.halenka.hannes.aoc19scala.validation.{NonEmptySeq, SeqValidator}
 import net.halenka.hannes.aoc19scala.{Result, RuntimeError}
 
@@ -148,7 +149,7 @@ object Intcode {
 case class InvalidOpcodeError(opcode: Int) extends RuntimeError(s"Invalid opcode: '$opcode'")
 
 @deprecated
-class InvalidOpcodeException(opcode: Int) extends RuntimeException(s"Invalid opcode: '${opcode}'")
+class InvalidOpcodeException(opcode: Int) extends RuntimeException(s"Invalid opcode: '$opcode'")
 
 /** Indicates that an instruction does not have a sufficient number of parameter. */
 case class UnexpectedEndOfInstructionError() extends RuntimeError
@@ -156,4 +157,4 @@ case class UnexpectedEndOfInstructionError() extends RuntimeError
 @deprecated
 class UnexpectedEndOfInstructionException extends RuntimeException
 
-class UnsupportedInstructionException(instruction: Instruction) extends RuntimeException(s"The instruction type '${instruction}' is not supported.")
+class UnsupportedInstructionException(instruction: Instruction) extends RuntimeException(s"The instruction type '$instruction' is not supported.")
