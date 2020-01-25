@@ -1,6 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
-import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, AddOrMultiply, InstructionWithInput, Multiply, StoreInput, Terminate}
+import net.halenka.hannes.aoc19scala.intcode.Instruction._
 import net.halenka.hannes.aoc19scala.validation.{NonEmptySeq, SeqValidator}
 import net.halenka.hannes.aoc19scala.{Result, RuntimeError}
 
@@ -68,19 +68,19 @@ object Intcode {
     instruction.head match {
       case 1 =>
         if (instruction.length >= 4) {
-          Right(Add(instruction(1), instruction(2), instruction(3)))
+          Right(Add(Parameter(instruction(1)), Parameter(instruction(2)), Parameter(instruction(3))))
         } else {
           Left(UnexpectedEndOfInstructionError())
         }
       case 2 =>
         if (instruction.length >= 4) {
-          Right(Multiply(instruction(1), instruction(2), instruction(3)))
+          Right(Multiply(Parameter(instruction(1)), Parameter(instruction(2)), Parameter(instruction(3))))
         } else {
           Left(UnexpectedEndOfInstructionError())
         }
       case 3 =>
         if (instruction.length >= 2) {
-          Right(StoreInput(instruction(1)))
+          Right(StoreInput(Parameter(instruction(1))))
         } else {
           Left(UnexpectedEndOfInstructionError())
         }
@@ -107,9 +107,9 @@ object Intcode {
       require(program != null && program.nonEmpty)
       require(f != null)
 
-      val result = f(program(instruction.readAddr1), program(instruction.readAddr2))
+      val result = f(program(instruction.readAddr1.value), program(instruction.readAddr2.value))
 
-      program.updated(instruction.storeAddr, result)
+      program.updated(instruction.storeAddr.value, result)
     }
 
     instruction match {
@@ -138,7 +138,7 @@ object Intcode {
 
     instruction match {
       case StoreInput(storeAddr) =>
-        val result = program.updated(storeAddr, input)
+        val result = program.updated(storeAddr.value, input)
         (result, None)
       case _ => throw new UnsupportedInstructionException(instruction)
     }

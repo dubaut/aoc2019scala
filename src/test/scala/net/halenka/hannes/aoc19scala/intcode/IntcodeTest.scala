@@ -74,14 +74,14 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
   "`applyInstruction(..)`" must "return the effected program and its output." in {
     val program = IndexedSeq(1, 1, 3, 0, 2, 3, 4, 8, 99)
 
-    applyInstruction(Add(1, 2, 0), program) match {
+    applyInstruction(Add(Parameter(1), Parameter(2), Parameter(0)), program) match {
       case (actualProgram, actualOutput) =>
         val expectedProgram = IndexedSeq(4, 1, 3, 0, 2, 3, 4, 8, 99)
         assertResult(expectedProgram)(actualProgram)
         assert(actualOutput.isEmpty)
     }
 
-    applyInstruction(Multiply(2, 4, 8), program) match {
+    applyInstruction(Multiply(Parameter(2), Parameter(4), Parameter(8)), program) match {
       case (actualProgram, actualOutput) =>
         val expectedProgram = IndexedSeq(1, 1, 3, 0, 2, 3, 4, 8, 6)
         assertResult(expectedProgram)(actualProgram)
@@ -113,7 +113,7 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
   }
 
   "`applyInstructionWithInput(..)`" must "return the effected program and its output." in {
-    val instruction = StoreInput(0)
+    val instruction = StoreInput(Parameter(0))
     val program = IndexedSeq(3, 0, 99)
     val input = 1
 
@@ -130,11 +130,11 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
 
   it must "produce an `IllegalArgumentException` if `program` is either `null` or empty." in {
     assertThrows[IllegalArgumentException] {
-      applyInstructionWithInput(StoreInput(0), null, 0)
+      applyInstructionWithInput(StoreInput(Parameter(0)), null, 0)
     }
 
     assertThrows[IllegalArgumentException] {
-      applyInstructionWithInput(StoreInput(0), Nil.toIndexedSeq, 0)
+      applyInstructionWithInput(StoreInput(Parameter(0)), Nil.toIndexedSeq, 0)
     }
   }
 

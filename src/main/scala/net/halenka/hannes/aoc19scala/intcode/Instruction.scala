@@ -6,10 +6,10 @@ sealed trait Instruction {
 
 object Instruction {
 
-  abstract class AddOrMultiply(val readAddr1: Int, val readAddr2: Int, val storeAddr: Int) extends Instruction {
-    require(readAddr1 >= 0)
-    require(readAddr2 >= 0)
-    require(storeAddr >= 0)
+  abstract class AddOrMultiply(val readAddr1: Parameter, val readAddr2: Parameter, val storeAddr: Parameter) extends Instruction {
+    require(readAddr1 != null)
+    require(readAddr2 != null)
+    require(storeAddr != null)
 
     override val length: Int = 4
   }
@@ -17,13 +17,13 @@ object Instruction {
   sealed trait InstructionWithInput extends Instruction
 
   /** Opcode 1 */
-  case class Add(override val readAddr1: Int, override val readAddr2: Int, override val storeAddr: Int) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
+  case class Add(override val readAddr1: Parameter, override val readAddr2: Parameter, override val storeAddr: Parameter) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
 
   /** Opcode 2 */
-  case class Multiply(override val readAddr1: Int, override val readAddr2: Int, override val storeAddr: Int) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
+  case class Multiply(override val readAddr1: Parameter, override val readAddr2: Parameter, override val storeAddr: Parameter) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
 
   /** Opcode 3 */
-  case class StoreInput(storeAddr: Int) extends InstructionWithInput {
+  case class StoreInput(storeAddr: Parameter) extends InstructionWithInput {
     override val length: Int = 2
   }
 
