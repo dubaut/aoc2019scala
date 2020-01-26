@@ -1,12 +1,12 @@
 package net.halenka.hannes.aoc19scala.day02
 
-import net.halenka.hannes.aoc19scala.intcode.Intcode
+import net.halenka.hannes.aoc19scala.intcode.{Intcode, Program}
 import net.halenka.hannes.aoc19scala._
 
 import scala.util.{Failure, Success}
 
 object Day02 {
-  def calculateAnswer(program: IndexedSeq[Int]): Either[Any, Int] = {
+  def calculateAnswer(program: Program): Either[Any, Int] = {
     val intcode = Intcode(program)
 
     (0 to 99)
@@ -28,7 +28,9 @@ object Day02 {
 
   def answer: Either[Any, Day02Result] = {
     loadResourceAsIntSeq("day02/input.txt") match {
-      case Success(program) =>
+      case Success(programSteps) =>
+        val program = Program(programSteps)
+
         val part1 = Intcode(program).run(12, 2).head
         val result = Day02Result(part1, _)
 

@@ -1,47 +1,47 @@
 package net.halenka.hannes.aoc19scala.intcode
 
 import net.halenka.hannes.aoc19scala.intcode.Instruction._
-import net.halenka.hannes.aoc19scala.validation.{NonEmptySeq, SeqValidator}
 import net.halenka.hannes.aoc19scala.{Result, RuntimeError}
 
-class Intcode private(private val program: NonEmptySeq[Int]) {
+class Intcode private(private val program: Program) {
   assert(program != null)
 
   /** Runs the program and returns the memory. */
   def run(noun: Int, verb: Int): Seq[Int] = {
-    val memory: Seq[Int] = program.updated(1, noun).updated(2, verb)
+    val memory = program.updated(1, noun).updated(2, verb)
 
-    Intcode.run(memory.toIndexedSeq) match {
+    Intcode.run(memory) match {
       case (program, _) => program
     }
   }
 }
 
 object Intcode {
-  type Program = IndexedSeq[Int]
-
   /** Creates a new `Intcode` instance.
    *
    * @param program The program to be executed.
-   * @throws IllegalArgumentException when `program` is either <null> or an empty `Seq`.
+   * @throws IllegalArgumentException if `program` is `null`
    */
-  def apply(program: Program): Intcode = new Intcode(program.requireNonEmpty("`program` must not be empty."))
+  def apply(program: Program): Intcode = {
+    require(program != null, "`program` must not be `null`.")
+    new Intcode(program)
+  }
 
   /** Processes all instructions of a program.
    *
-   * @throws IllegalArgumentException if `program` is `null` or empty
+   * @throws IllegalArgumentException if `program` is `null`
    * @throws IllegalArgumentException if `address` is less then '0'
    * @return a tuple containing the memory (`_1`) and the output (`_2`) after running the program.
    */
   @scala.annotation.tailrec
   def run(program: Program, address: Int = 0): (IndexedSeq[Int], IndexedSeq[Int]) = {
-    program.requireNonEmpty("`program` must not be `null` or empty.")
+    require(program != null, "`program` must not be `null`.")
     require(address >= 0, "`address` must not be less than '0'.")
 
     loadInstruction(program, address) match {
       case Right(instruction) =>
         instruction match {
-          case Terminate() => (program, IndexedSeq[Int]())
+          case Terminate() => (program.steps, IndexedSeq[Int]())
           case instruction: InstructionWithInput => applyInstructionWithInput(instruction, program, 1) match {
             case (program, output) => run(program, address + instruction.length)
           }
@@ -55,15 +55,15 @@ object Intcode {
 
   /** Loads the instruction from the program at the specified address.
    *
-   * @throws IllegalArgumentException if `program` is either `null` or empty
+   * @throws IllegalArgumentException if `program` is either `null`
    * @throws IllegalArgumentException if `address` is either < 0 or >= program.size
    */
   def loadInstruction(program: Program, address: Int): Result[Instruction] = {
-    program.requireNonEmpty("`program` must not be empty.")
+    require(program != null, "`program` must not be empty.")
     require(address >= 0, "`address` must not be less than '0.")
     require(address < program.size, s"'$address' is not a valid address for the specified program.")
 
-    val instruction = program.drop(address)
+    val instruction = program.steps.drop(address)
 
     instruction.head match {
       case 1 =>
@@ -95,12 +95,12 @@ object Intcode {
   /** Applies an instruction to a program.
    *
    * @throws IllegalArgumentException if `instruction` is `null`
-   * @throws IllegalArgumentException if `program` is either `null` or empty
+   * @throws IllegalArgumentException if `program` is either `null`
    * @return the modified program and the optional output
    */
   def applyInstruction(instruction: Instruction, program: Program): ApplyInstructionResult = {
     require(instruction != null, "`instruction` must not be `null`.")
-    program.requireNonEmpty("`program` must not be `null` or empty.")
+    require(program != null, "`program` must not be `null` or empty.")
 
     def addOrMultiply(instruction: AddOrMultiply, program: IndexedSeq[Int], f: (Int, Int) => Int): IndexedSeq[Int] = {
       require(instruction != null)
@@ -114,11 +114,11 @@ object Intcode {
 
     instruction match {
       case instruction: Add =>
-        val result = addOrMultiply(instruction, program, (a: Int, b: Int) => a + b)
-        (result, None)
+        val result = addOrMultiply(instruction, program.steps, (a: Int, b: Int) => a + b)
+        (Program(result), None)
       case instruction: Multiply =>
-        val result = addOrMultiply(instruction, program, (a: Int, b: Int) => a * b)
-        (result, None)
+        val result = addOrMultiply(instruction, program.steps, (a: Int, b: Int) => a * b)
+        (Program(result), None)
       case _: Terminate => (program, None)
       case _ => throw new UnsupportedInstructionException(instruction)
     }
@@ -128,13 +128,13 @@ object Intcode {
    *
    * @return the modified program and the optional output
    * @throws IllegalArgumentException if `instruction` is `null`
-   * @throws IllegalArgumentException if `program` is either `null` or empty
+   * @throws IllegalArgumentException if `program` is either `null`
    */
   def applyInstructionWithInput(instruction: InstructionWithInput,
                                 program: Program,
                                 input: Int): ApplyInstructionResult = {
     require(instruction != null, "`instruction` must not be ´null´.")
-    program.requireNonEmpty("´program´ must not be `null` or empty.")
+    require(program != null, "´program´ must not be `null` or empty.")
 
     instruction match {
       case StoreInput(storeAddr) =>
