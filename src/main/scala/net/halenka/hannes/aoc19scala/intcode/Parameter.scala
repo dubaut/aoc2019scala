@@ -13,6 +13,6 @@ sealed trait ParameterMode
 
 object ParameterMode {
 
-  case object Position extends ParameterMode
+  final case object Position extends ParameterMode
 
 }

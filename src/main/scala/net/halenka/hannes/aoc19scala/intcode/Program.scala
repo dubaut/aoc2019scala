@@ -1,5 +1,8 @@
 package net.halenka.hannes.aoc19scala.intcode
 
+import net.halenka.hannes.aoc19scala.Result
+import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate}
+import net.halenka.hannes.aoc19scala.intcode.ParameterMode.Position
 import net.halenka.hannes.aoc19scala.validation.SeqValidator
 
 /**
@@ -21,6 +24,41 @@ case class Program(steps: IndexedSeq[Int]) {
 
   /** The number of steps in the program. */
   def size: Int = steps.size
+
+  /** Returns the instruction present at the specified address of a program.
+   *
+   * @throws IllegalArgumentException if `address` is less than '0', or greater than the last address of the program
+   */
+  def getInstruction(address: Int): Result[Instruction] = {
+    require(address >= 0, "The address must not be less than '0'.")
+    require(address < size, s"The address must not be greater than the last address ('${size - 1}') in the program.")
+
+    val instruction = steps.drop(address)
+    val opcode = instruction.head
+
+    opcode match {
+      case 1 =>
+        if (instruction.size >= 4) {
+          Right(Add(Parameter(instruction(1), Position), Parameter(instruction(2), Position), Parameter(instruction(3), Position)))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
+      case 2 =>
+        if (instruction.size >= 4) {
+          Right(Multiply(Parameter(instruction(1), Position), Parameter(instruction(2), Position), Parameter(instruction(3), Position)))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
+      case 3 =>
+        if (instruction.size >= 2) {
+          Right(StoreInput(Parameter(instruction(1), Position)))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
+      case 99 => Right(Terminate())
+      case opcode => Left(InvalidOpcodeError(opcode))
+    }
+  }
 }
 
 object Program {

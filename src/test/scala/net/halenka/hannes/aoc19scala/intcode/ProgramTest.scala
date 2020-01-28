@@ -1,8 +1,11 @@
 package net.halenka.hannes.aoc19scala.intcode
 
+import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate}
+import net.halenka.hannes.aoc19scala.intcode.ParameterMode.Position
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.must.Matchers
 
-class ProgramTest extends AnyFlatSpec {
+class ProgramTest extends AnyFlatSpec with Matchers {
   "`Program(IndexedSeq[Int)`" must "produce an `IllegalArgumentException` if `steps` is `null`." in {
     assertThrows[IllegalArgumentException] {
       Program(null)
@@ -47,5 +50,78 @@ class ProgramTest extends AnyFlatSpec {
   "`size`" must "return the number of steps in a program." in {
     assertResult(1)(Program(99).size)
     assertResult(5)(Program(1, 0, 0, 0, 99).size)
+  }
+
+  "getInstruction(0) invoked on Program(1, 2, 5, 0)" must "return an Add instruction." in {
+    val program = Program(1, 2, 5, 0)
+    val result = program.getInstruction(0)
+
+    result.getOrElse(new Object) mustBe a[Add]
+    val add = result match {
+      case Right(value) => value.asInstanceOf[Add]
+      case _ => fail()  // added to avoid compiler warnings
+    }
+
+    assertResult(add.readAddr1)(Parameter(2, Position))
+    assertResult(add.readAddr2)(Parameter(5, Position))
+    assertResult(add.storeAddr)(Parameter(0, Position))
+  }
+
+  "getInstruction(4) invoked on Program(1, 0, 0, 0, 2, 1, 3, 0)" must "return a Multiply instruction." in {
+    val program = Program(1, 0, 0, 0, 2, 1, 3, 0)
+    val result = program.getInstruction(4)
+
+    result.getOrElse(new Object) mustBe a[Multiply]
+    val multiply = result match {
+      case Right(value) => value.asInstanceOf[Multiply]
+      case _ => fail()  // added to avoid compiler warnings
+    }
+
+    assertResult(multiply.readAddr1)(Parameter(1, Position))
+    assertResult(multiply.readAddr2)(Parameter(3, Position))
+    assertResult(multiply.storeAddr)(Parameter(0, Position))
+  }
+
+  "getInstruction(4) invoked on Program(1, 0, 0, 0, 99)" must "return a Terminate instruction." in {
+    val program = Program(1, 0, 0, 0, 99)
+    val result = program.getInstruction(4)
+
+    result.getOrElse(new Object) mustBe a[Terminate]
+  }
+
+  "getInstruction(0) invoked on Program(3, 0, 99)" must "return a StoreInput instruction." in {
+    val program = Program(3, 0, 99)
+    val result = program.getInstruction(0)
+
+    result.getOrElse(new Object) mustBe a[StoreInput]
+    val storeInput = result match {
+      case Right(value) => value.asInstanceOf[StoreInput]
+      case _ => fail()  // added to avoid compiler warnings
+    }
+
+    assertResult(storeInput.storeAddr)(Parameter(0, Position))
+  }
+
+  "getInstruction(0) invoked on Program(Integer.MIN_VALUE)" must "return an InvalidOpcodeError." in {
+    val program = Program(Integer.MIN_VALUE)
+    program.getInstruction(0).swap.getOrElse(new Object) mustBe a[InvalidOpcodeError]
+  }
+
+  "getInstruction(0) invoked on Program(1, 0, 0)" must "return an UnexpectedEndOfInstructionError." in {
+    val program = Program(1, 0, 0)
+    val value1 = program.getInstruction(0)
+    value1.swap.getOrElse(new Object) mustBe a[UnexpectedEndOfInstructionError]
+  }
+
+  "getInstruction(-1)" must "produce an IllegalArgumentException." in {
+    assertThrows[IllegalArgumentException] {
+      Program(99).getInstruction(-1)
+    }
+  }
+
+  "getInstruction(1) invoked on Program(99)" must "produce an IllegalArgumentException." in {
+    assertThrows[IllegalArgumentException] {
+      Program(99).getInstruction(1)
+    }
   }
 }

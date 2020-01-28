@@ -17,18 +17,18 @@ object Instruction {
   sealed trait InstructionWithInput extends Instruction
 
   /** Opcode 1 */
-  case class Add(override val readAddr1: Parameter, override val readAddr2: Parameter, override val storeAddr: Parameter) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
+  final case class Add(override val readAddr1: Parameter, override val readAddr2: Parameter, override val storeAddr: Parameter) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
 
   /** Opcode 2 */
-  case class Multiply(override val readAddr1: Parameter, override val readAddr2: Parameter, override val storeAddr: Parameter) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
+  final case class Multiply(override val readAddr1: Parameter, override val readAddr2: Parameter, override val storeAddr: Parameter) extends AddOrMultiply(readAddr1, readAddr2, storeAddr)
 
   /** Opcode 3 */
-  case class StoreInput(storeAddr: Parameter) extends InstructionWithInput {
+  final case class StoreInput(storeAddr: Parameter) extends InstructionWithInput {
     override val length: Int = 2
   }
 
   /** Opcode 99 */
-  case class Terminate() extends Instruction {
+  final case class Terminate() extends Instruction {
     override val length: Int = 1
   }
 

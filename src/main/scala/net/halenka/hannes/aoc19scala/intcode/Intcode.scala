@@ -38,7 +38,7 @@ object Intcode {
     require(program != null, "`program` must not be `null`.")
     require(address >= 0, "`address` must not be less than '0'.")
 
-    loadInstruction(program, address) match {
+    program.getInstruction(address) match {
       case Right(instruction) =>
         instruction match {
           case Terminate() => (program.steps, IndexedSeq[Int]())
@@ -50,43 +50,6 @@ object Intcode {
           }
         }
       case Left(error) => throw new RuntimeException(s"Error: $error")
-    }
-  }
-
-  /** Loads the instruction from the program at the specified address.
-   *
-   * @throws IllegalArgumentException if `program` is either `null`
-   * @throws IllegalArgumentException if `address` is either < 0 or >= program.size
-   */
-  def loadInstruction(program: Program, address: Int): Result[Instruction] = {
-    require(program != null, "`program` must not be empty.")
-    require(address >= 0, "`address` must not be less than '0.")
-    require(address < program.size, s"'$address' is not a valid address for the specified program.")
-
-    val instruction = program.steps.drop(address)
-
-    instruction.head match {
-      case 1 =>
-        if (instruction.length >= 4) {
-          Right(Add(Parameter(instruction(1)), Parameter(instruction(2)), Parameter(instruction(3))))
-        } else {
-          Left(UnexpectedEndOfInstructionError())
-        }
-      case 2 =>
-        if (instruction.length >= 4) {
-          Right(Multiply(Parameter(instruction(1)), Parameter(instruction(2)), Parameter(instruction(3))))
-        } else {
-          Left(UnexpectedEndOfInstructionError())
-        }
-      case 3 =>
-        if (instruction.length >= 2) {
-          Right(StoreInput(Parameter(instruction(1))))
-        } else {
-          Left(UnexpectedEndOfInstructionError())
-        }
-      case 99 =>
-        Right(Terminate())
-      case opcode => Left(InvalidOpcodeError(opcode))
     }
   }
 
@@ -146,13 +109,13 @@ object Intcode {
 }
 
 /** Indicates that a opcode is unknown or unsupported. */
-case class InvalidOpcodeError(opcode: Int) extends RuntimeError(s"Invalid opcode: '$opcode'")
+final case class InvalidOpcodeError(opcode: Int) extends RuntimeError(s"Invalid opcode: '$opcode'")
 
 @deprecated
 class InvalidOpcodeException(opcode: Int) extends RuntimeException(s"Invalid opcode: '$opcode'")
 
 /** Indicates that an instruction does not have a sufficient number of parameter. */
-case class UnexpectedEndOfInstructionError() extends RuntimeError
+final case class UnexpectedEndOfInstructionError() extends RuntimeError
 
 @deprecated
 class UnexpectedEndOfInstructionException extends RuntimeException

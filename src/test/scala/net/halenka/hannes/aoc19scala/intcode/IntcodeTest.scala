@@ -15,54 +15,6 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
     assertThrows[IllegalArgumentException](Intcode(null))
   }
 
-  "`loadInstruction`" must "return a `Right` containing an `Add` if the opcode of the instruction is '1." in {
-    loadInstruction(Program(1, 2, 5, 0), 0).getOrElse(new Object) mustBe a[Add]
-  }
-
-  it must "return a `Multiply` if the opcode of the instruction is '2'." in {
-    loadInstruction(Program(1, 0, 0, 0, 2, 1, 3, 0), 4).getOrElse(new Object) mustBe a[Multiply]
-  }
-
-  it must "return a `Terminate` if the opcode of the instruction is '99'." in {
-    loadInstruction(Program(1, 0, 0, 0, 99), 4).getOrElse(new Object) mustBe a[Terminate]
-  }
-
-  it must "return a ´StoreInput´ if the opcode of the instruction is '3'." in {
-    loadInstruction(Program(3, 0, 99), 0).getOrElse(new Object) mustBe a[StoreInput]
-  }
-
-  it must "produce an `InvalidOpcodeError` if the opcode of the instruction is unknown." in {
-    loadInstruction(Program(-1), 0).swap.getOrElse(new Object) mustBe a[InvalidOpcodeError]
-  }
-
-  it must "produce an `UnexpectedEndOfInstructionError` if the instruction does not have a sufficient number of parameter." in {
-    loadInstruction(Program(1, 0, 0), 0).swap.getOrElse(new Object) mustBe a[UnexpectedEndOfInstructionError]
-  }
-
-  it must "produce an `IllegalArgumentException` if `program` is `null`." in {
-    assertThrows[IllegalArgumentException] {
-      loadInstruction(null, 0)
-    }
-  }
-
-  it must "produce an `IllegalArgumentException` if `address` is `< 0`." in {
-    assertThrows[IllegalArgumentException] {
-      loadInstruction(Program(99), -1)
-    }
-  }
-
-  it must "produce an `IllegalArgumentException` if `address` is >= `program.size`." in {
-    val program = Program(99)
-
-    assertThrows[IllegalArgumentException] {
-      loadInstruction(program, program.size)
-    }
-
-    assertThrows[IllegalArgumentException] {
-      loadInstruction(program, program.size + 1)
-    }
-  }
-
   "`applyInstruction(..)`" must "return the effected program and its output." in {
     val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
 
