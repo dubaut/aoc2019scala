@@ -1,6 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
-import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate}
+import net.halenka.hannes.aoc19scala.intcode.Instruction.StoreInput
 import net.halenka.hannes.aoc19scala.intcode.Intcode._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
@@ -13,43 +13,6 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
 
   it should "produce an `IllegalArgumentException` if `program` is `null`." in {
     assertThrows[IllegalArgumentException](Intcode(null))
-  }
-
-  "`applyInstruction(..)`" must "return the effected program and its output." in {
-    val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
-
-    applyInstruction(Add(Parameter(1), Parameter(2), Parameter(0)), program) match {
-      case (actualProgram, actualOutput) =>
-        val expectedProgram = Program(4, 1, 3, 0, 2, 3, 4, 8, 99)
-        assertResult(expectedProgram)(actualProgram)
-        assert(actualOutput.isEmpty)
-    }
-
-    applyInstruction(Multiply(Parameter(2), Parameter(4), Parameter(8)), program) match {
-      case (actualProgram, actualOutput) =>
-        val expectedProgram = Program(1, 1, 3, 0, 2, 3, 4, 8, 6)
-        assertResult(expectedProgram)(actualProgram)
-        assert(actualOutput.isEmpty)
-    }
-
-    applyInstruction(Terminate(), program) match {
-      case (actualProgram, actualOutput) =>
-        val expectedProgram = program
-        assertResult(expectedProgram)(actualProgram)
-        assert(actualOutput.isEmpty)
-    }
-  }
-
-  it must "produce an `IllegalArgumentException` if `instruction` is `null`." in {
-    assertThrows[IllegalArgumentException] {
-      applyInstruction(null, Program(99))
-    }
-  }
-
-  it must "produce an `IllegalArgumentException` if `program` is either `null`." in {
-    assertThrows[IllegalArgumentException] {
-      applyInstruction(Terminate(), null)
-    }
   }
 
   "`applyInstructionWithInput(..)`" must "return the effected program and its output." in {

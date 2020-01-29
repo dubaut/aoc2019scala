@@ -45,7 +45,7 @@ object Intcode {
           case instruction: InstructionWithInput => applyInstructionWithInput(instruction, program, 1) match {
             case (program, output) => run(program, address + instruction.length)
           }
-          case instruction => applyInstruction(instruction, program) match {
+          case instruction => program.applyInstruction(instruction) match {
             case (program, output) => run(program, address + instruction.length)
           }
         }
@@ -54,38 +54,6 @@ object Intcode {
   }
 
   type ApplyInstructionResult = (Program, Option[Int])
-
-  /** Applies an instruction to a program.
-   *
-   * @throws IllegalArgumentException if `instruction` is `null`
-   * @throws IllegalArgumentException if `program` is either `null`
-   * @return the modified program and the optional output
-   */
-  def applyInstruction(instruction: Instruction, program: Program): ApplyInstructionResult = {
-    require(instruction != null, "`instruction` must not be `null`.")
-    require(program != null, "`program` must not be `null` or empty.")
-
-    def addOrMultiply(instruction: AddOrMultiply, program: IndexedSeq[Int], f: (Int, Int) => Int): IndexedSeq[Int] = {
-      require(instruction != null)
-      require(program != null && program.nonEmpty)
-      require(f != null)
-
-      val result = f(program(instruction.readAddr1.value), program(instruction.readAddr2.value))
-
-      program.updated(instruction.storeAddr.value, result)
-    }
-
-    instruction match {
-      case instruction: Add =>
-        val result = addOrMultiply(instruction, program.steps, (a: Int, b: Int) => a + b)
-        (Program(result), None)
-      case instruction: Multiply =>
-        val result = addOrMultiply(instruction, program.steps, (a: Int, b: Int) => a * b)
-        (Program(result), None)
-      case _: Terminate => (program, None)
-      case _ => throw new UnsupportedInstructionException(instruction)
-    }
-  }
 
   /** Applies a instruction to a program, using the provided input.
    *

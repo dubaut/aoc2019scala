@@ -59,7 +59,7 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     result.getOrElse(new Object) mustBe a[Add]
     val add = result match {
       case Right(value) => value.asInstanceOf[Add]
-      case _ => fail()  // added to avoid compiler warnings
+      case _ => fail() // added to avoid compiler warnings
     }
 
     assertResult(add.readAddr1)(Parameter(2, Position))
@@ -74,7 +74,7 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     result.getOrElse(new Object) mustBe a[Multiply]
     val multiply = result match {
       case Right(value) => value.asInstanceOf[Multiply]
-      case _ => fail()  // added to avoid compiler warnings
+      case _ => fail() // added to avoid compiler warnings
     }
 
     assertResult(multiply.readAddr1)(Parameter(1, Position))
@@ -96,7 +96,7 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     result.getOrElse(new Object) mustBe a[StoreInput]
     val storeInput = result match {
       case Right(value) => value.asInstanceOf[StoreInput]
-      case _ => fail()  // added to avoid compiler warnings
+      case _ => fail() // added to avoid compiler warnings
     }
 
     assertResult(storeInput.storeAddr)(Parameter(0, Position))
@@ -109,8 +109,8 @@ class ProgramTest extends AnyFlatSpec with Matchers {
 
   "getInstruction(0) invoked on Program(1, 0, 0)" must "return an UnexpectedEndOfInstructionError." in {
     val program = Program(1, 0, 0)
-    val value1 = program.getInstruction(0)
-    value1.swap.getOrElse(new Object) mustBe a[UnexpectedEndOfInstructionError]
+    val value = program.getInstruction(0)
+    value.swap.getOrElse(new Object) mustBe a[UnexpectedEndOfInstructionError]
   }
 
   "getInstruction(-1)" must "produce an IllegalArgumentException." in {
@@ -122,6 +122,54 @@ class ProgramTest extends AnyFlatSpec with Matchers {
   "getInstruction(1) invoked on Program(99)" must "produce an IllegalArgumentException." in {
     assertThrows[IllegalArgumentException] {
       Program(99).getInstruction(1)
+    }
+  }
+
+  "applyInstruction(Add(Parameter(1), Parameter(2), Parameter(0))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(4, 1, 3, 0, 2, 3, 4, 8, 99)." in {
+    val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
+    val instruction = Add(Parameter(1), Parameter(2), Parameter(0))
+
+    val expectedProgram = Program(4, 1, 3, 0, 2, 3, 4, 8, 99)
+
+    program.applyInstruction(instruction) match {
+      case (actualProgram, actualOutput) =>
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
+  }
+
+  "applyInstruction(Multiply(Parameter(2), Parameter(4), Parameter(8))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(1, 1, 3, 0, 2, 3, 4, 8, 6)." in {
+    val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
+    val instruction = Multiply(Parameter(2), Parameter(4), Parameter(8))
+
+    val expectedProgram = Program(1, 1, 3, 0, 2, 3, 4, 8, 6)
+    program.applyInstruction(instruction) match {
+      case (actualProgram, actualOutput) =>
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
+  }
+
+  "applyInstruction(Terminate()) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return the same program." in {
+    val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
+    val instruction = Terminate()
+
+    program.applyInstruction(instruction) match {
+      case (actualProgram, actualOutput) =>
+        actualProgram must be theSameInstanceAs program
+        assert(actualOutput.isEmpty)
+    }
+  }
+
+  "applyInstruction(StoreInput(0)) invoked on Program(99)" must "produce an UnsupportedInstructionException." in {
+    assertThrows[UnsupportedInstructionException] {
+      Program(99).applyInstruction(StoreInput(Parameter(0)))
+    }
+  }
+
+  "applyInstruction(null)" must "produce an IllegalArgumentException" in {
+    assertThrows[IllegalArgumentException] {
+      Program(99).applyInstruction(null)
     }
   }
 }
