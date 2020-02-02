@@ -15,28 +15,6 @@ class IntcodeTest extends AnyFlatSpec with Matchers with TryValues with OptionVa
     assertThrows[IllegalArgumentException](Intcode(null))
   }
 
-  "`applyInstructionWithInput(..)`" must "return the effected program and its output." in {
-    val instruction = StoreInput(Parameter(0))
-    val program = Program(3, 0, 99)
-    val input = 1
-
-    val expected = (Program(1, 0, 99), None)
-    val actual = applyInstructionWithInput(instruction, program, input)
-    assertResult(expected)(actual)
-  }
-
-  it must "produce an `IllegalArgumentException` if `instruction` `null`" in {
-    assertThrows[IllegalArgumentException] {
-      applyInstructionWithInput(null, Program(99), 0)
-    }
-  }
-
-  it must "produce an `IllegalArgumentException` if `program` is either `null`." in {
-    assertThrows[IllegalArgumentException] {
-      applyInstructionWithInput(StoreInput(Parameter(0)), null, 0)
-    }
-  }
-
   "`run(..)`" must "return the modified program and the output after processing all instructions." in {
     val emptyOutput = Nil.toIndexedSeq
 

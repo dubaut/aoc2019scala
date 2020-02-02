@@ -1,18 +1,22 @@
 package net.halenka.hannes.aoc19scala.intcode
 
-import net.halenka.hannes.aoc19scala.intcode.ParameterMode.Position
+import net.halenka.hannes.aoc19scala.intcode.Parameter.ParameterMode
+import net.halenka.hannes.aoc19scala.intcode.Parameter.ParameterMode.Position
 
 case class Parameter(value: Int, mode: ParameterMode)
 
 object Parameter {
   /** Returns a new `Parameter` instance in position mode. */
   def apply(value: Int): Parameter = Parameter(value, Position)
-}
 
-sealed trait ParameterMode
+  sealed trait ParameterMode
 
-object ParameterMode {
+  object ParameterMode {
 
-  final case object Position extends ParameterMode
+    final case object Position extends ParameterMode
+
+    final case object Immediate extends ParameterMode
+
+  }
 
 }

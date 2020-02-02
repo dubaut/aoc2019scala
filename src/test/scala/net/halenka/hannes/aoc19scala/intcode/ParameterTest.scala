@@ -1,6 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
-import net.halenka.hannes.aoc19scala.intcode.ParameterMode.Position
+import net.halenka.hannes.aoc19scala.intcode.Parameter.ParameterMode.Position
 import org.scalatest.flatspec.AnyFlatSpec
 
 class ParameterTest extends AnyFlatSpec {

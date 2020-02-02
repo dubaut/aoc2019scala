@@ -1,7 +1,8 @@
 package net.halenka.hannes.aoc19scala.intcode
 
 import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate}
-import net.halenka.hannes.aoc19scala.intcode.ParameterMode.Position
+import net.halenka.hannes.aoc19scala.intcode.Parameter.ParameterMode.{Immediate, Position}
+import net.halenka.hannes.aoc19scala.intcode.Program.{InvalidAddressException, InvalidOpcodeError, UnexpectedEndOfInstructionError, UnsupportedInstructionException}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 
@@ -62,9 +63,24 @@ class ProgramTest extends AnyFlatSpec with Matchers {
       case _ => fail() // added to avoid compiler warnings
     }
 
-    assertResult(add.readAddr1)(Parameter(2, Position))
-    assertResult(add.readAddr2)(Parameter(5, Position))
-    assertResult(add.storeAddr)(Parameter(0, Position))
+    assertResult(Parameter(2, Position))(add.readAddr1)
+    assertResult(Parameter(5, Position))(add.readAddr2)
+    assertResult(Parameter(0, Position))(add.storeAddr)
+  }
+
+  "getInstruction(0) invoked on Program(1101, 2, 5, 0)" must "return an Add instruction." in {
+    val program = Program(1101, 2, 5, 0)
+    val result = program.getInstruction(0)
+
+    result.getOrElse(new Object) mustBe a[Add]
+    val add = result match {
+      case Right(value) => value.asInstanceOf[Add]
+      case _ => fail() // added to avoid compiler warnings
+    }
+
+    assertResult(Parameter(2, Immediate))(add.readAddr1)
+    assertResult(Parameter(5, Immediate))(add.readAddr2)
+    assertResult(Parameter(0, Position))(add.storeAddr)
   }
 
   "getInstruction(4) invoked on Program(1, 0, 0, 0, 2, 1, 3, 0)" must "return a Multiply instruction." in {
@@ -77,9 +93,9 @@ class ProgramTest extends AnyFlatSpec with Matchers {
       case _ => fail() // added to avoid compiler warnings
     }
 
-    assertResult(multiply.readAddr1)(Parameter(1, Position))
-    assertResult(multiply.readAddr2)(Parameter(3, Position))
-    assertResult(multiply.storeAddr)(Parameter(0, Position))
+    assertResult(Parameter(1, Position))(multiply.readAddr1)
+    assertResult(Parameter(3, Position))(multiply.readAddr2)
+    assertResult(Parameter(0, Position))(multiply.storeAddr)
   }
 
   "getInstruction(4) invoked on Program(1, 0, 0, 0, 99)" must "return a Terminate instruction." in {
@@ -138,6 +154,18 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     }
   }
 
+  "applyInstruction(Add(Parameter(2, Immediate), Parameter(5, Immediate), Parameter(0, Position))) invoked on Program(1101, 2, 5, 0)" must "return Program(7, 2, 5, 0) and output None." in {
+    val program = Program(1101, 2, 5, 0)
+    val instruction = Add(Parameter(2, Immediate), Parameter(5, Immediate), Parameter(0, Position))
+
+    val expectedProgram = Program(7, 2, 5, 0)
+    program.applyInstruction(instruction) match {
+      case (actualProgram, actualOutput) =>
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
+  }
+
   "applyInstruction(Multiply(Parameter(2), Parameter(4), Parameter(8))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(1, 1, 3, 0, 2, 3, 4, 8, 6)." in {
     val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
     val instruction = Multiply(Parameter(2), Parameter(4), Parameter(8))
@@ -171,5 +199,78 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     assertThrows[IllegalArgumentException] {
       Program(99).applyInstruction(null)
     }
+  }
+
+  "applyInstructionWithInput(StoreInput(Parameter(0)), 1) invoked on Program(3, 0, 99)" must "return Program(1, 0, 99) and output None." in {
+    val program = Program(3, 0, 99)
+    val instruction = StoreInput(Parameter(0))
+    val input = 1
+
+    val expectedProgram = Program(1, 0, 99)
+    program.applyInstructionWithInput(instruction, input) match {
+      case (actualProgram, actualOutput) =>
+        assertResult(expectedProgram)(actualProgram)
+        assert(actualOutput.isEmpty)
+    }
+  }
+
+  "applyInstructionWithInput(null, 1)" must "produce an IllegalArgumentException." in {
+    assertThrows[IllegalArgumentException] {
+      Program(99).applyInstructionWithInput(null, 1)
+    }
+  }
+
+  "getValue(null)" must "produce an IllegalArgumentException" in {
+    assertThrows[IllegalArgumentException] {
+      Program(99).getValue(null)
+    }
+  }
+
+  "getValue(Parameter(0, Position)) invoked on Program(Program(1, 2, 0, 3, 99))" must "return '1'" in {
+    val program = Program(1, 2, 0, 3, 99)
+    val parameter = Parameter(0, Position)
+
+    val expectedValue = 1
+    val actualValue = program.getValue(parameter)
+    assertResult(expectedValue)(actualValue)
+  }
+
+  "getValue(Parameter(3, Immediate)) invoked on Program(Program(1, 2, 0, 3, 99))" must "return '3'" in {
+    val program = Program(1, 2, 0, 3, 99)
+    val parameter = Parameter(3, Immediate)
+
+    val expectedValue = 3
+    val actualValue = program.getValue(parameter)
+    assertResult(expectedValue)(actualValue)
+  }
+
+  "getValue(Parameter(5, Position)) invoked on Program(1, 2, 0, 3, 99)" must "produce an InvalidAddressException." in {
+    val program = Program(1, 2, 0, 3, 99)
+    val parameter = Parameter(5, Position)
+
+    assertThrows[InvalidAddressException] {
+      program.getValue(parameter)
+    }
+  }
+
+  "isValidAddress(0) invoked on Program(99)" must "return true." in {
+    val program = Program(99)
+    val address = 0
+
+    assertResult(true)(program.isValidAddress(address))
+  }
+
+  "isValidAddress(-1) invoked on Program(99)" must "return false." in {
+    val program = Program(99)
+    val address = -1
+
+    assertResult(false)(program.isValidAddress(address))
+  }
+
+  "isValidAddress(7) invoked on Program(1, 0, 0, 0, 99)" must "return true." in {
+    val program = Program(1, 0, 0, 0, 99)
+    val address = 7
+
+    assertResult(false)(program.isValidAddress(address))
   }
 }

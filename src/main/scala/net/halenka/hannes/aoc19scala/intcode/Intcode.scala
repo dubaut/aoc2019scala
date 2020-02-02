@@ -1,7 +1,7 @@
 package net.halenka.hannes.aoc19scala.intcode
 
+import net.halenka.hannes.aoc19scala.RuntimeError
 import net.halenka.hannes.aoc19scala.intcode.Instruction._
-import net.halenka.hannes.aoc19scala.{Result, RuntimeError}
 
 class Intcode private(private val program: Program) {
   assert(program != null)
@@ -42,7 +42,7 @@ object Intcode {
       case Right(instruction) =>
         instruction match {
           case Terminate() => (program.steps, IndexedSeq[Int]())
-          case instruction: InstructionWithInput => applyInstructionWithInput(instruction, program, 1) match {
+          case instruction: InstructionWithInput => program.applyInstructionWithInput(instruction, 1) match {
             case (program, output) => run(program, address + instruction.length)
           }
           case instruction => program.applyInstruction(instruction) match {
@@ -52,40 +52,4 @@ object Intcode {
       case Left(error) => throw new RuntimeException(s"Error: $error")
     }
   }
-
-  type ApplyInstructionResult = (Program, Option[Int])
-
-  /** Applies a instruction to a program, using the provided input.
-   *
-   * @return the modified program and the optional output
-   * @throws IllegalArgumentException if `instruction` is `null`
-   * @throws IllegalArgumentException if `program` is either `null`
-   */
-  def applyInstructionWithInput(instruction: InstructionWithInput,
-                                program: Program,
-                                input: Int): ApplyInstructionResult = {
-    require(instruction != null, "`instruction` must not be ´null´.")
-    require(program != null, "´program´ must not be `null` or empty.")
-
-    instruction match {
-      case StoreInput(storeAddr) =>
-        val result = program.updated(storeAddr.value, input)
-        (result, None)
-      case _ => throw new UnsupportedInstructionException(instruction)
-    }
-  }
 }
-
-/** Indicates that a opcode is unknown or unsupported. */
-final case class InvalidOpcodeError(opcode: Int) extends RuntimeError(s"Invalid opcode: '$opcode'")
-
-@deprecated
-class InvalidOpcodeException(opcode: Int) extends RuntimeException(s"Invalid opcode: '$opcode'")
-
-/** Indicates that an instruction does not have a sufficient number of parameter. */
-final case class UnexpectedEndOfInstructionError() extends RuntimeError
-
-@deprecated
-class UnexpectedEndOfInstructionException extends RuntimeException
-
-class UnsupportedInstructionException(instruction: Instruction) extends RuntimeException(s"The instruction type '$instruction' is not supported.")
