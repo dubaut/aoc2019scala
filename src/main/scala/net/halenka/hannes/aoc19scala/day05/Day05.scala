@@ -10,7 +10,7 @@ object Day05 {
     aoc19scala.loadResourceAsIntSeq("day05/input.txt") match {
       case Success(programSteps) =>
         val output = Intcode.run(Program(programSteps)) match {
-          case (memory, output) => output.foldLeft(new StringBuilder)((a, b) => a.append(b)).toString()
+          case (_, output) => output.foldLeft(new StringBuilder)((a, b) => a.append(b)).toString()
         }
 
         Right(Day05Result(output))
