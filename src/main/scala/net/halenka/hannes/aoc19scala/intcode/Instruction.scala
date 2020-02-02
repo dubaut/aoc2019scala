@@ -27,6 +27,11 @@ object Instruction {
     override val length: Int = 2
   }
 
+  /** Opcode 4 */
+  final case class Output(addr: Parameter) extends Instruction {
+    override val length: Int = 2
+  }
+
   /** Opcode 99 */
   final case class Terminate() extends Instruction {
     override val length: Int = 1

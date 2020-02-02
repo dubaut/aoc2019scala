@@ -1,6 +1,6 @@
 package net.halenka.hannes.aoc19scala.intcode
 
-import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate}
+import net.halenka.hannes.aoc19scala.intcode.Instruction.{Add, Multiply, StoreInput, Terminate, Output}
 import net.halenka.hannes.aoc19scala.intcode.Parameter.ParameterMode.{Immediate, Position}
 import net.halenka.hannes.aoc19scala.intcode.Program.{InvalidAddressException, InvalidOpcodeError, UnexpectedEndOfInstructionError, UnsupportedInstructionException}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -115,7 +115,33 @@ class ProgramTest extends AnyFlatSpec with Matchers {
       case _ => fail() // added to avoid compiler warnings
     }
 
-    assertResult(storeInput.storeAddr)(Parameter(0, Position))
+    assertResult(StoreInput(Parameter(0, Position)))(storeInput)
+  }
+
+  "getInstruction(0) invoked on Program(4, 99)" must "return an Output instruction." in {
+    val program = Program(4, 99)
+    val result = program.getInstruction(0)
+
+    result.getOrElse(new Object) mustBe a[Output]
+    val output = result match {
+      case Right(value) => value.asInstanceOf[Output]
+      case _ => fail() // added to avoid compiler warnings
+    }
+
+    assertResult(Output(Parameter(99, Position)))(output)
+  }
+
+  "getInstruction(0) invoked on Program(104, 99)" must "return an Output instruction." in {
+    val program = Program(104, 99)
+    val result = program.getInstruction(0)
+
+    result.getOrElse(new Object) mustBe a[Output]
+    val output = result match {
+      case Right(value) => value.asInstanceOf[Output]
+      case _ => fail() // added to avoid compiler warnings
+    }
+
+    assertResult(Output(Parameter(99, Immediate)))(output)
   }
 
   "getInstruction(0) invoked on Program(Integer.MIN_VALUE)" must "return an InvalidOpcodeError." in {
@@ -141,7 +167,7 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     }
   }
 
-  "applyInstruction(Add(Parameter(1), Parameter(2), Parameter(0))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(4, 1, 3, 0, 2, 3, 4, 8, 99)." in {
+  "applyInstruction(Add(Parameter(1), Parameter(2), Parameter(0))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(4, 1, 3, 0, 2, 3, 4, 8, 99) and output None." in {
     val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
     val instruction = Add(Parameter(1), Parameter(2), Parameter(0))
 
@@ -166,7 +192,7 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     }
   }
 
-  "applyInstruction(Multiply(Parameter(2), Parameter(4), Parameter(8))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(1, 1, 3, 0, 2, 3, 4, 8, 6)." in {
+  "applyInstruction(Multiply(Parameter(2), Parameter(4), Parameter(8))) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return Program(1, 1, 3, 0, 2, 3, 4, 8, 6) and output None." in {
     val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
     val instruction = Multiply(Parameter(2), Parameter(4), Parameter(8))
 
@@ -178,7 +204,7 @@ class ProgramTest extends AnyFlatSpec with Matchers {
     }
   }
 
-  "applyInstruction(Terminate()) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return the same program." in {
+  "applyInstruction(Terminate()) invoked on Program(1, 1, 3, 0, 2, 3, 4, 8, 99)" must "return the same program and output None." in {
     val program = Program(1, 1, 3, 0, 2, 3, 4, 8, 99)
     val instruction = Terminate()
 
@@ -186,6 +212,19 @@ class ProgramTest extends AnyFlatSpec with Matchers {
       case (actualProgram, actualOutput) =>
         actualProgram must be theSameInstanceAs program
         assert(actualOutput.isEmpty)
+    }
+  }
+
+  "applyInstruction(Output(Parameter(0, Position))) invoked on Program(1, 0, 0, 0, 99)" must "return the same program and output Some(1)." in {
+    val program = Program(1, 0, 0, 0, 99)
+    val instruction = Output(Parameter(0, Position))
+
+    val expectedOutput = Some(1)
+
+    program.applyInstruction(instruction) match {
+      case (actualProgram, actualOutput) =>
+        actualProgram must be theSameInstanceAs program
+        assertResult(expectedOutput)(actualOutput)
     }
   }
 

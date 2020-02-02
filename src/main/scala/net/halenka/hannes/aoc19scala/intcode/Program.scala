@@ -74,6 +74,13 @@ case class Program(steps: IndexedSeq[Int]) {
         } else {
           Left(UnexpectedEndOfInstructionError())
         }
+      case 4 =>
+        if (instruction.size >= 2) {
+          val parameterModes = getParameterModes(instructionHead.dropRight(2), 1)
+          Right(Output(Parameter(instruction(1), parameterModes(0))))
+        } else {
+          Left(UnexpectedEndOfInstructionError())
+        }
       case 99 => Right(Terminate())
       case opcode => Left(InvalidOpcodeError(opcode))
     }
@@ -107,6 +114,8 @@ case class Program(steps: IndexedSeq[Int]) {
       case multiply: Multiply =>
         val result = addOrMultiply(multiply, (a: Int, b: Int) => a * b)
         (result, None)
+      case output: Output =>
+        (this, Some(getValue(output.addr)))
       case _: Terminate => (this, None)
       case _ => throw new UnsupportedInstructionException(instruction)
     }
